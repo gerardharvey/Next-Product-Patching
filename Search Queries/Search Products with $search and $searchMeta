@@ -1,0 +1,119 @@
+[
+  {
+    '$search': {
+      'index': 'categorySearch', 
+      'facet': {
+        'operator': {
+          'compound': {
+            'must': [
+              {
+                'equals': {
+                  'value': 'shopwomens', 
+                  'path': 'materialized_paths'
+                }
+              }
+            ]
+          }
+        }, 
+        'facets': {
+          'materialized_paths': {
+            'type': 'string', 
+            'path': 'materialized_paths'
+          }, 
+          'category': {
+            'type': 'string', 
+            'path': 'next_category', 
+            'numBuckets': 50
+          }, 
+          'size': {
+            'type': 'string', 
+            'path': 'variants.attributes.size', 
+            'numBuckets': 50
+          }, 
+          'fit': {
+            'type': 'string', 
+            'path': 'fit', 
+            'numBuckets': 50
+          }, 
+          'colour': {
+            'type': 'string', 
+            'path': 'colour', 
+            'numBuckets': 50
+          }, 
+          'brand': {
+            'type': 'string', 
+            'path': 'brand', 
+            'numBuckets': 50
+          }, 
+          'style': {
+            'type': 'string', 
+            'path': 'style', 
+            'numBuckets': 50
+          }, 
+          'material': {
+            'type': 'string', 
+            'path': 'material', 
+            'numBuckets': 50
+          }, 
+          'price': {
+            'type': 'number', 
+            'path': 'price', 
+            'boundaries': [
+              0, 10, 20, 50, 75, 100, 200, 500, 1000
+            ], 
+            'default': 'Other'
+          }
+        }
+      }, 
+      'sort': {
+        'next_order': 1
+      }
+    }
+  }, {
+    '$skip': 10
+  }, {
+    '$limit': 10
+  }, {
+    '$facet': {
+      'products': [], 
+      'meta': [
+        {
+          '$replaceWith': '$$SEARCH_META'
+        }, {
+          '$limit': 1
+        }
+      ]
+    }
+  }, {
+    '$set': {
+      'meta': {
+        '$arrayElemAt': [
+          '$meta', 0
+        ]
+      }
+    }
+  }, {
+    '$set': {
+      'meta.facet.materialized_paths.buckets': {
+        '$filter': {
+          'input': '$meta.facet.materialized_paths.buckets', 
+          'as': 'bucket', 
+          'cond': {
+            '$and': [
+              {
+                '$regexMatch': {
+                  'input': '$$bucket._id', 
+                  'regex': '^shopwomens'
+                }
+              }, {
+                '$ne': [
+                  '$$bucket._id', 'shopwomens'
+                ]
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+]

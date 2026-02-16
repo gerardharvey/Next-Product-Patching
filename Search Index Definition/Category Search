@@ -1,0 +1,47 @@
+{
+  "mappings": {
+    "dynamic": false,
+    "fields": {
+      "brand": {
+        "type": "token"
+      },
+      "colour": {
+        "type": "token"
+      },
+      "fit": {
+        "type": "token"
+      },
+      "material": {
+        "type": "token"
+      },
+      "materialized_paths": {
+        "type": "token"
+      },
+      "next_category": {
+        "type": "token"
+      },
+      "next_order": {
+        "type": "number"
+      },
+      "price": {
+        "type": "number"
+      },
+      "style": {
+        "type": "token"
+      },
+      "variants": {
+        "type": "document",
+        "fields": {
+          "attributes": {
+            "type": "document",
+            "fields": {
+              "size": {
+                "type": "token"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
