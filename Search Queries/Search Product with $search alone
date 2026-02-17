@@ -1,0 +1,53 @@
+[
+  {
+    '$search': {
+      'index': 'categorySearch', 
+      'compound': {
+        'must': [
+          {
+            'equals': {
+              'value': 'shopwomens', 
+              'path': 'materialized_paths'
+            }
+          }, {
+            'equals': {
+              'value': 'Nude', 
+              'path': 'colour'
+            }
+          }
+        ]
+      }
+    }
+  }, {
+    '$sort': {
+      'next_order': 1
+    }
+  }, {
+    '$skip': 10
+  }, {
+    '$limit': 10
+  }, {
+    '$set': {
+      'materialized_paths': {
+        '$filter': {
+          'input': '$materialized_paths', 
+          'as': 'path', 
+          'cond': {
+            '$and': [
+              {
+                '$regexMatch': {
+                  'input': '$$path', 
+                  'regex': new RegExp('shopwomens')
+                }
+              }, {
+                '$ne': [
+                  '$$path', 'shopwomens'
+                ]
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+]
