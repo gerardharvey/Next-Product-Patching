@@ -1,3 +1,19 @@
+/* 
+AUTHOR: Gerard Harvey
+COMPANY: MongoDB
+DESCRIPTION: This script demonstrates how to use MongoDB's $merge operation to update a large number of Products using data held 
+  within a Atlas Data Federation Virtual Collection. A $merge is used to preserve the Atlas Search Index created on the target
+  collection, which would be dropped and recreated if $out was used instead. 
+
+DEPENDENCIES:
+  - process.env.MONGO_DATAFED_PROD_CONNECTIONSTRING must be set to a connection string for the Data Federation instance that can read 
+    from the S3
+  - npm install mongodb should be run to install the MongoDB NodeJS driver
+  - The Data Federation instance must be configured with a service that can read from the S3 bucket containing the Product data
+  - Within Atlas Data Federation the target cluster and database must be set up as a Data Source
+
+NOTE: NOT TO BE USED IN PRODUCTION. THIS IS A DEMONSTRATION ONLY
+*/
 import { MongoClient } from 'mongodb';
 
 var mongoClient = null;
@@ -13,7 +29,7 @@ const getCollection = function(serviceName, dbName, collName) {
 
 const trigger = async function() {
   const startTime = new Date();
-  const patchSvcName = "mongodb://nextUser:nextPass@nextdemo-h0uox.a.query.mongodb.net/?directConnection=true&tls=true&authSource=admin&appName=mongosh+2.5.2";
+  const patchSvcName = process.env.MONGO_DATAFED_PROD_CONNECTIONSTRING;
   const patchDBName = "NextProductDatabase";
   const patchCollName = "ProductsUK";
   console.log(`Starting UK Product Load at ${startTime}... connecting to ${patchSvcName}...`);

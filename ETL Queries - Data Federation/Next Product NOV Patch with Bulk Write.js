@@ -1,5 +1,22 @@
-import { MongoClient } from 'mongodb';
+/* 
+AUTHOR: Gerard Harvey
+COMPANY: MongoDB
+DESCRIPTION: This script demonstrates how to use MongoDB's bulkWrite operation to update a large number of documents in a target 
+  collection based on data from a Atlas Data Federation Virtual Collection that is reading NOV data from an S3 bucket (configured 
+  within Data Federation itself). 
 
+DEPENDENCIES:
+  - process.env.MONGO_CLUSTER_CONNECTION_STRING must be set to a connection string for the target cluster that contains the "Next" 
+    database and "Products" collection to be updated
+  - process.env.MONGO_DATAFED_CONNECTION_STRING must be set to a connection string for the Data Federation instance that can read 
+    from the S3
+  - npm install mongodb should be run to install the MongoDB NodeJS driver
+  - The Data Federation instance must be configured with a service that can read from the S3 bucket containing the NOV data, and the 
+    patch collection must be populated with the relevant data for the script to process
+
+NOTE: NOT TO BE USED IN PRODUCTION. THIS IS A DEMONSTRATION ONLY
+*/
+import { MongoClient } from 'mongodb';
 var mongoClient = null;
 var clusterClient = null;
 
@@ -33,7 +50,7 @@ const bulkWrite = async function(collection, updates) {
 }
 
 const trigger = async function() {
-  const patchSvcName = "mongodb://nextUser:nextPass@nextdemopatches-h0uox.a.query.mongodb.net/?ssl=true&authSource=admin&appName=nextDemoPatches";
+  const patchSvcName = process.env.MONGO_DATAFED_CONNECTION_STRING;
   const patchDBName = "NextDemoPatches";
   const patchCollName = "novPatches";
   console.log(`Starting NextProductPatch... connecting to ${patchSvcName}...`);
@@ -52,7 +69,8 @@ const trigger = async function() {
           TiSeg4: 1,
           TiSeg5: 1,
           file_date: 1        
-      }}
+      }},
+      { $limit: 1 }
     ];
 
     const productColl = getProductCollection("Next");
