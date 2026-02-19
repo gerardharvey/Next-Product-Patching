@@ -73,7 +73,7 @@ const trigger = async function() {
                 'projectId': "6759c201136a02253fea72a4",
                 'clusterName': "AzureDemo",
                 'db': "Next",
-                'coll': "ProductsMASTER"
+                'coll': "ProductsNEUR"
               }
             },
           'on': 'sku', 
