@@ -29,10 +29,12 @@ const getCollection = function(serviceName, dbName, collName) {
 
 const trigger = async function() {
   const startTime = new Date();
+  const CountryCode = "DK"; // "NO", "SE"
   const patchSvcName = process.env.MONGO_DATAFED_PROD_CONNECTIONSTRING;
   const patchDBName = "NextProductDatabase";
-  const patchCollName = "ProductsUK";
-  console.log(`Starting UK Product Load at ${startTime}... connecting to ${patchSvcName}...`);
+  const patchCollName = `Products${CountryCode}`;
+  const variantFieldName = `variants${CountryCode}`;
+  console.log(`Starting ${CountryCode} Product Load at ${startTime}... connecting to ${patchSvcName}...`);
   const patchColl = getCollection(patchSvcName, patchDBName, patchCollName);
 
   try {
@@ -153,6 +155,7 @@ const trigger = async function() {
       },
       {
         $set: {
+          variantsDK: "$variants",
           materialized_paths: {
             $setUnion: [
               {
@@ -171,7 +174,7 @@ const trigger = async function() {
           }
         }
       },
-      { $unset: ["_id"] },
+      { $unset: ["_id", "variants"] },
       {
         $merge: {
             into: {
@@ -179,7 +182,7 @@ const trigger = async function() {
                 projectId: "6759c201136a02253fea72a4",
                 clusterName: "AzureDemo",
                 db: "Next",
-                coll: "ProductsUK"
+                coll: "ProductsNEUR"
               }
             },
             on: "sku",
@@ -263,7 +266,7 @@ const trigger = async function() {
                 "primary_colour": "$$new.primary_colour",
                 "secondary_colour": "$$new.secondary_colour",
                 "further_reduced": "$$new.further_reduced",
-                "variants": "$$new.variants",
+                "variantsDK": "$$new.variantsDK",
                 "materialized_paths": "$$new.materialized_paths"
               }
             }],
@@ -274,7 +277,7 @@ const trigger = async function() {
 
     const rslt = await patchColl.aggregate(pipeline).toArray();    
     const endTime = new Date();
-    console.log(`UK Product Merge completed at ${endTime} with ${rslt.matchedCount} matched and ${rslt.modifiedCount} modified documents.`); 
+    console.log(`${CountryCode} Product Merge completed at ${endTime} with ${rslt.matchedCount} matched and ${rslt.modifiedCount} modified documents.`); 
     console.log(`Total execution time: ${(endTime.getTime() - startTime.getTime())/1000} seconds.`);
     
   } catch (err) {
