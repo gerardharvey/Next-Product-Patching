@@ -1,5 +1,5 @@
 {
-  "connectionString": "mongodb+srv://dbUser:dbPass@AzureDemo.h0uox.mongodb.net/",
+  "connectionString": "",
   "comment": "SimRunner configuration for 'Mega Doc' prices for Next",
   "comment_details": "RUN USING: docker run --mount type=bind,source=./priceSimRunner.json,target=/config.json sylvainchambon/simrunner:latest",
   "templates": [
