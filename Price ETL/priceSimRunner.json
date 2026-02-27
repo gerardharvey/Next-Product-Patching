@@ -1,0 +1,200 @@
+{
+  "connectionString": "mongodb+srv://dbUser:dbPass@AzureDemo.h0uox.mongodb.net/",
+  "comment": "SimRunner configuration for 'Mega Doc' prices for Next",
+  "comment_details": "RUN USING: docker run --mount type=bind,source=./priceSimRunner.json,target=/config.json sylvainchambon/simrunner:latest",
+  "templates": [
+    {
+      "name": "nextProductPrice",
+      "database": "Next",
+      "collection": "Prices",
+      "drop": false,
+      "dictionaries": {
+        "countries": [
+          "UK",
+          "IE",
+          "DE",
+          "SA",
+          "IL",
+          "UA",
+          "AU",
+          "KW",
+          "UY",
+          "PL",
+          "HK",
+          "AS",
+          "AR",
+          "BR",
+          "CA",
+          "CL",
+          "JM",
+          "MX",
+          "PE",
+          "AW",
+          "BD",
+          "KH",
+          "CN",
+          "IN",
+          "ID",
+          "JP",
+          "KZ",
+          "KG",
+          "MO",
+          "MY",
+          "NP",
+          "NZ",
+          "PK",
+          "SG",
+          "GS",
+          "LK",
+          "SY",
+          "TH",
+          "ET",
+          "AM",
+          "AT",
+          "AZ",
+          "BY",
+          "BE",
+          "BA",
+          "BG",
+          "HR",
+          "CI",
+          "DK",
+          "EE",
+          "FI",
+          "FR",
+          "GE",
+          "DE",
+          "GR",
+          "HU",
+          "IS",
+          "IE",
+          "IT",
+          "LV",
+          "LT",
+          "LU",
+          "MT",
+          "NP",
+          "NO",
+          "PL",
+          "PT",
+          "QA",
+          "RO",
+          "RS",
+          "SK",
+          "SI",
+          "ES",
+          "SE",
+          "CH",
+          "TR",
+          "UA",
+          "AE",
+          "BR",
+          "FM",
+          "DZ",
+          "BH",
+          "EG",
+          "IL",
+          "JO",
+          "KE",
+          "KW",
+          "LB",
+          "MU",
+          "NG",
+          "OM",
+          "QA",
+          "SA",
+          "ZA",
+          "UA"
+        ],
+        "markdownType": ["P", "F", "N"]
+      },
+      "variables": {
+        "letterPart": { "%stringTemplate": { "template": "???" } },
+        "numberPart": { "%mod": { "of": "%sequence", "by": 1000 } }
+      },
+      "template": {
+        "itemID": {
+          "%stringConcat": { "of": ["#letterPart", "#numberPart"], "sep": "" }
+        },
+        "sequenceIndex": "%sequence",
+        "dataset": "gold",
+        "realm": "next",
+        "lastUpdated": "%now",
+        "globalTerritories": {
+          "%array": {
+            "min": 20,
+            "max": 100,
+            "of": {
+              "priceGroupCode": "#countries",
+              "price": {
+                "minPrice": { "%integer": { "min": 0, "max": 500 } },
+                "maxPrice": { "%integer": { "min": 0, "max": 500 } }
+              },
+              "priceHistory": [
+                {
+                  "datePoint": {
+                    "%plusDate": {
+                      "base": "%now",
+                      "plus": -3,
+                      "unit": "months"
+                    }
+                  },
+                  "minPrice": { "%integer": { "min": 0, "max": 500 } },
+                  "maxPrice": { "%integer": { "min": 0, "max": 500 } },
+                  "activeFrom": {
+                    "%plusDate": {
+                      "base": "%now",
+                      "plus": -3,
+                      "unit": "months"
+                    }
+                  }
+                }
+              ],
+              "options": {
+                "%array": {
+                  "min": 4,
+                  "max": 10,
+                  "of": {
+                    "optionNumber": { "%stringTemplate": { "template": "&&" } },
+                    "price": { "%integer": { "min": 0, "max": 500 } },
+                    "salePrice": { "%integer": { "min": 0, "max": 500 } },
+                    "markdownType": "#markdownType"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "remember": [
+        {
+          "field": "itemID",
+          "name": "itemID",
+          "preload": false,
+          "capped": 650000
+        }
+      ]
+    }
+  ],
+  "workloads": [
+    {
+      "name": "Insert prices",
+      "template": "nextProductPrice",
+      "op": "insert",
+      "threads": 1,
+      "batch": 1,
+      "stopAfter": 1
+    },
+    {
+    "name": "Find by ",
+    "template": "nextProductPrice",
+    "op": "find",
+    "params": {
+        "filter": { "first": "#first" },
+        "sort": { "birthday": -1 },
+        "project": { "age": { "$subtract": [{"$year": "$$NOW"}, {"$year": "$birthday"}]}},
+        "limit": 100
+    }
+}
+  ]
+}

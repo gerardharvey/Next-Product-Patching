@@ -156,6 +156,8 @@ const trigger = async function() {
       {
         $set: {
           variantsDK: "$variants",
+          activeDK: true,
+          fileNameDK: "$$ROOT.fileName",
           materialized_paths: {
             $setUnion: [
               {
@@ -267,6 +269,8 @@ const trigger = async function() {
                 "secondary_colour": "$$new.secondary_colour",
                 "further_reduced": "$$new.further_reduced",
                 "variantsDK": "$$new.variantsDK",
+                "fileNameDK": "$$new.fileNameDK",
+                "inactiveDK": false,
                 "materialized_paths": "$$new.materialized_paths"
               }
             }],
@@ -275,7 +279,7 @@ const trigger = async function() {
       }
     ];
 
-    const rslt = await patchColl.aggregate(pipeline).toArray();    
+    const rslt = await patchColl.aggregate(pipeline).toArray();  
     const endTime = new Date();
     console.log(`${CountryCode} Product Merge completed at ${endTime} with ${rslt.matchedCount} matched and ${rslt.modifiedCount} modified documents.`); 
     console.log(`Total execution time: ${(endTime.getTime() - startTime.getTime())/1000} seconds.`);
